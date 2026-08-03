@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeltSim — thermodynamics sandbox</title>
+  <link rel="stylesheet" href="/src/ui/style.css" />
+</head>
+<body>
+  <main class="bench">
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>MELT<em>SIM</em></h1>
+        <span class="brand-sub">enthalpy-method thermodynamics sandbox</span>
+      </div>
+      <dl class="readouts">
+        <div class="readout"><dt>sim clock</dt><dd id="ro-clock">0:00:00</dd></div>
+        <div class="readout"><dt>molten</dt><dd id="ro-melt">0.0%</dd></div>
+        <div class="readout is-hot"><dt>T max</dt><dd id="ro-tmax">--</dd></div>
+        <div class="readout is-cool"><dt>T min</dt><dd id="ro-tmin">--</dd></div>
+        <div class="readout"><dt>probe</dt><dd id="ro-probe">--</dd></div>
+      </dl>
+    </header>
+
+    <section class="window-frame">
+      <canvas id="stage" width="960" height="576"></canvas>
+      <div class="window-etch" aria-hidden="true"></div>
+      <div class="stamp" id="stamp" hidden>STANDBY</div>
+      <div class="legend" aria-hidden="true">
+        <span id="legend-lo">solid</span>
+        <div class="legend-bar" id="legend-bar"></div>
+        <span id="legend-hi">molten</span>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <section class="ctl">
+        <h2>material</h2>
+        <div class="seg" id="seg-material" role="group" aria-label="material"></div>
+      </section>
+
+      <section class="ctl">
+        <h2>scene</h2>
+        <div class="seg" id="seg-scene" role="group" aria-label="scene">
+          <button data-v="block">block</button>
+          <button data-v="slab">slab</button>
+          <button data-v="mound">mound</button>
+          <button data-v="toast">toast</button>
+          <button data-v="mould">cast</button>
+        </div>
+        <p class="hint" id="scene-hint">drag on the window to aim the heater</p>
+      </section>
+
+      <section class="ctl">
+        <h2>view</h2>
+        <div class="seg" id="seg-view" role="group" aria-label="field view">
+          <button data-v="material">phase</button>
+          <button data-v="temperature">temp</button>
+          <button data-v="energy">energy</button>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="chk-iso" />
+          <span>isotherms (melt band contours)</span>
+        </label>
+      </section>
+
+      <section class="ctl" id="ctl-heater">
+        <h2>heater</h2>
+        <div class="seg" id="seg-side" role="group" aria-label="heater side">
+          <button data-v="top">top</button>
+          <button data-v="bottom">bottom</button>
+          <button data-v="off">off</button>
+        </div>
+        <label class="slider">
+          <span>power <output id="out-power">25</output> kW/m²</span>
+          <input id="in-power" type="range" min="2" max="60" step="1" value="25" />
+        </label>
+        <label class="slider">
+          <span>span <output id="out-span">40</output>%</span>
+          <input id="in-span" type="range" min="10" max="100" step="5" value="40" />
+        </label>
+      </section>
+
+      <section class="ctl" id="ctl-pour" hidden>
+        <h2>casting pour</h2>
+        <label class="slider">
+          <span>pour temp <output id="out-pour-temp">120</output> °C</span>
+          <input id="in-pour-temp" type="range" min="30" max="340" step="5" value="120" />
+        </label>
+        <label class="slider">
+          <span>pour rate <output id="out-pour-rate">6</output></span>
+          <input id="in-pour-rate" type="range" min="1" max="20" step="1" value="6" />
+        </label>
+        <label class="slider">
+          <span>mould temp <output id="out-mould-temp">-20</output> °C</span>
+          <input id="in-mould-temp" type="range" min="-40" max="40" step="5" value="-20" />
+        </label>
+        <p class="hint">pour the selected material into a cold steel mould and watch it set</p>
+      </section>
+
+      <section class="ctl">
+        <h2>environment</h2>
+        <label class="slider">
+          <span>ambient <output id="out-ambient">22</output> °C</span>
+          <input id="in-ambient" type="range" min="-25" max="60" step="1" value="22" />
+        </label>
+        <label class="slider">
+          <span>time × <output id="out-speed">126</output></span>
+          <input id="in-speed" type="range" min="0" max="3.6" step="0.05" value="2.1" />
+        </label>
+      </section>
+
+      <section class="ctl" id="ctl-tune">
+        <h2>material tuning</h2>
+        <label class="slider">
+          <span>conductivity × <output id="out-k">1.0</output></span>
+          <input id="in-k" type="range" min="0.25" max="4" step="0.05" value="1" />
+        </label>
+        <label class="slider">
+          <span>latent heat × <output id="out-latent">1.0</output></span>
+          <input id="in-latent" type="range" min="0.25" max="4" step="0.05" value="1" />
+        </label>
+        <label class="slider">
+          <span>viscosity × <output id="out-visc">1.0</output></span>
+          <input id="in-visc" type="range" min="0.1" max="10" step="0.1" value="1" />
+        </label>
+        <button id="btn-tune-reset" class="btn-ghost btn-wide">RESET TUNING</button>
+      </section>
+
+      <section class="ctl">
+        <h2>instruments</h2>
+        <figure class="chart">
+          <figcaption>T max vs time <span id="chart-temp-hi" class="chart-hi">--</span></figcaption>
+          <svg viewBox="0 0 100 38" preserveAspectRatio="none" class="chart-svg">
+            <polyline id="chart-temp" fill="none" vector-effect="non-scaling-stroke" />
+          </svg>
+        </figure>
+        <figure class="chart">
+          <figcaption>molten % vs time <span id="chart-melt-hi" class="chart-hi">--</span></figcaption>
+          <svg viewBox="0 0 100 38" preserveAspectRatio="none" class="chart-svg">
+            <polyline id="chart-melt" fill="none" vector-effect="non-scaling-stroke" />
+          </svg>
+        </figure>
+      </section>
+
+      <section class="ctl">
+        <h2>energy budget</h2>
+        <div class="energy" id="energy-bars"></div>
+        <p class="hint" id="energy-check">ledger balances to machine precision</p>
+      </section>
+
+      <section class="ctl transport">
+        <button id="btn-run" class="btn-run" aria-pressed="false">RUN</button>
+        <button id="btn-reset" class="btn-ghost">RESET</button>
+        <button id="btn-snap" class="btn-ghost">PNG</button>
+      </section>
+
+      <section class="ctl">
+        <h2>scenario</h2>
+        <div class="transport">
+          <button id="btn-link" class="btn-ghost">COPY LINK</button>
+          <button id="btn-save" class="btn-ghost">SAVE</button>
+          <button id="btn-load" class="btn-ghost">LOAD</button>
+        </div>
+        <input type="file" id="file-scenario" accept="application/json" hidden />
+        <p class="hint" id="scenario-msg" hidden></p>
+      </section>
+
+      <p class="fineprint">
+        Educational model — enthalpy-method conduction, boiling &amp; solidification
+        with a mass-conserving slumping automaton. Not a CFD solver.
+      </p>
+    </aside>
+
+    <footer class="strip">
+      <span><kbd>space</kbd> run / pause</span>
+      <span><kbd>R</kbd> reset</span>
+      <span><kbd>1–7</kbd> materials</span>
+      <span><kbd>V</kbd> cycle view</span>
+      <span class="strip-right">grid 120×72 · Δx 1 cm · explicit FTCS</span>
+    </footer>
+  </main>
+  <script type="module" src="/src/ui/main.ts"></script>
+</body>
+</html>

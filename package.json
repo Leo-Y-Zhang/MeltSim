@@ -1,0 +1,27 @@
+{
+  "name": "meltsim",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive 2D thermodynamics sandbox: enthalpy-method melting, solidification (pour + cold mould) and boiling, with viscous slumping. Educational model, browser-based, zero runtime dependencies.",
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "export:frames": "node scripts/export-frames.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.1.0",
+    "eslint": "^10.6.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.63.0",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.0"
+  }
+}
