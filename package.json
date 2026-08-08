@@ -1,6 +1,7 @@
 {
   "name": "meltsim",
   "version": "1.0.0",
+  "author": "Leo Y. Zhang",
   "private": true,
   "type": "module",
   "description": "Interactive 2D thermodynamics sandbox: enthalpy-method melting, solidification (pour + cold mould) and boiling, with viscous slumping. Educational model, browser-based, zero runtime dependencies.",
