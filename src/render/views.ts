@@ -311,16 +311,25 @@ function contourBlock(
       out.push({ x0: p1[0], y0: p1[1], x1: p2[0], y1: p2[1] })
     }
   }
-  // pts.length of 0 (or the degenerate odd counts that exact-equality corners
-  // can never reach here) contributes nothing.
+  // pts.length of 0 contributes nothing. Odd counts cannot occur: `straddles`
+  // classifies corners rather than testing an interval, so the crossings round
+  // the four-edge cycle always come in pairs.
 }
 
-/** True when `level` lies strictly between a and b, or exactly on one end. */
+/**
+ * True when the edge (a, b) crosses `level`, decided by CLASSIFYING each corner
+ * as at-or-above the level rather than by testing whether the level falls in
+ * the closed interval [min, max].
+ *
+ * The interval test counts a corner sitting exactly ON the level as a crossing
+ * of BOTH edges meeting at that corner, which can leave a block with three
+ * crossings - an odd count contourBlock has no branch for, so the contour
+ * through that block is silently dropped. Classifying corners instead makes the
+ * crossing count around the four-edge cycle always even (a corner flips the
+ * classification an even number of times going round), which is exactly what
+ * the two- and four-crossing branches assume. Two corners equal to each other
+ * still yield no crossing, as before.
+ */
 function straddles(a: number, b: number, level: number): boolean {
-  const lo = a < b ? a : b
-  const hi = a < b ? b : a
-  // Exclude the case where both corners equal the level (no crossing, and
-  // including it would emit a zero-length or duplicated segment on flat cells).
-  if (lo === hi) return false
-  return level >= lo && level <= hi
+  return a >= level !== b >= level
 }

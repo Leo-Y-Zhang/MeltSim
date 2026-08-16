@@ -56,3 +56,36 @@ describe('isotherms saddle resolution (four-crossing block)', () => {
     expect(segs).toHaveLength(1)
   })
 })
+
+/**
+ * A corner temperature landing exactly ON the requested level is reachable, not
+ * hypothetical: enthalpyFromTemperature/temperatureFromEnthalpy round-trip
+ * exactly for whole degrees in the solid branch (20 -> -54600 J/kg -> 20 for
+ * wax), and the boiling cap pins a cell at exactly its boiling point. The
+ * contour through such a block must not disappear.
+ */
+describe('isotherms with a corner exactly on the level', () => {
+  // TL sits exactly on the level, BL below it, TR and BR above: the contour
+  // runs from the TL corner down to the middle of the bottom edge.
+  const level = 20
+
+  it('emits the crossing segment when a corner equals the level exactly', () => {
+    const segs = isotherms(saddleGrid(20, 40, 40, 0), [level])
+    expect(segs).toHaveLength(1)
+    const s = segs[0]!
+    // one endpoint is the top-left corner, the other the bottom-edge midpoint
+    const ends = [
+      [s.x0, s.y0],
+      [s.x1, s.y1],
+    ].sort((a, b) => a[1]! - b[1]!)
+    expect(ends[0]).toEqual([0, 0])
+    expect(ends[1]).toEqual([0.5, 1])
+  })
+
+  it('is not sensitive to an infinitesimal nudge of that corner', () => {
+    // Perturbing the corner off the level either way already produced one
+    // segment; sitting exactly on it must not be the odd case out.
+    expect(isotherms(saddleGrid(20 - 1e-3, 40, 40, 0), [level])).toHaveLength(1)
+    expect(isotherms(saddleGrid(20 + 1e-3, 40, 40, 0), [level])).toHaveLength(1)
+  })
+})
