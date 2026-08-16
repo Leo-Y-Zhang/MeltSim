@@ -103,7 +103,7 @@ energy:
   JSON round-trip), plus a probe readout and PNG snapshot.
 - Headless frame exporter with dependency-free **PNG and animated-GIF
   (GIF89a/LZW) encoders**.
-- **219 unit tests** on everything that computes (conservation laws, boiling
+- **221 unit tests** on everything that computes (conservation laws, boiling
   and freezing, phase mapping, stability, automaton, multi-material rules,
   renderer field views, isotherms, charts, scenario round-trips), including
   **one- and two-phase Stefan-problem benchmarks**.
@@ -113,7 +113,7 @@ energy:
 ```bash
 npm install
 npm run dev        # interactive bench at http://localhost:5173
-npm test           # 219 vitest tests
+npm test           # 221 vitest tests
 npm run lint       # ESLint (typescript-eslint)
 npm run typecheck  # strict TypeScript
 npm run export:frames  # regenerate docs/media/*.png + *.gif headlessly (Node >= 23.6)
@@ -217,11 +217,10 @@ mover's index); a cell of another material is a rigid wall and a floor. There
 is deliberately no mixing, wetting or displacement between materials — melt
 flows *over* the toast, never into it. The toast preset itself is honest
 bookkeeping, not new physics: toast is simply a material whose melting band
-(200–210 °C) sits far above every demo material's range, so under the shipped
-scenes it conducts and warms but never melts. (Aim a max-power grill straight
-at it and its surface *can* enter that softening band — the heater clamps at
-350 °C — but the full-width slab still has nowhere to flow, so it stays put
-regardless.)
+(400–410 °C) sits above the 350 °C heater clamp, so it conducts and warms but
+cannot enter its softening band at all, in any scene, even under a max-power
+grill aimed straight at it. Steel mould walls (1450–1460 °C) are rigid for the
+same reason.
 
 **Known simplifications** (all deliberate): 2D; constant density (no
 expansion/contraction, so ice ≈ water density here); single conductivity per
@@ -271,7 +270,7 @@ src/png/        dependency-free PNG encoder (DEFLATE is injected)
 src/gif/        dependency-free animated GIF89a encoder (own LZW + palette)
 src/ui/         thin untested DOM wiring for the bench
 scripts/        headless demo exporter (node scripts/export-frames.ts)
-tests/          219 vitest tests over everything except src/ui
+tests/          221 vitest tests over everything except src/ui
 ```
 
 Design rule: everything that computes is pure and tested; the browser layer
