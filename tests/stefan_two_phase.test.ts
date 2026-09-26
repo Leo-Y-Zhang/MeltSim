@@ -23,11 +23,11 @@ import { diffuse, stableDt } from '../src/core/heat.ts'
  *
  * Discrete analogue: a 1D column of water cells initially liquid at T_inf, the
  * wall cell pinned to Tw every step (Dirichlet), conduction at the stable
- * explicit dt. The scheme freezes across a 1 degC mushy band, so exact
- * agreement is impossible; the test pins how close it lands. Observed on 1 mm
- * cells: front error 6.1% at t=400 s, 4.0% at 800 s, 2.6% at 1500 s (lambda =
- * 0.239) - the transient shrinks as the front outgrows the mushy band, exactly
- * as in the one-phase melt benchmark.
+ * explicit dt. Distances are measured from the pinned node, the centre of
+ * cell 0 (measuring from its outer edge adds a spurious half cell, which was
+ * most of the 6.1% / 4.0% / 2.6% gap previously reported here). Observed on
+ * 1 mm cells: front error 1.2% at t=400 s, 0.5% at 800 s, 0.1% at 1500 s
+ * (lambda = 0.239); the test asserts < 2%.
  */
 
 // Abramowitz & Stegun 7.1.26 (|error| <= 1.5e-7); erfc = 1 - erf. Both are
@@ -62,7 +62,10 @@ function solveTwoPhaseLambda(stS: number, stL: number, nu: number, cRatio: numbe
   return (lo + hi) / 2
 }
 
-/** Freeze-front position (m): where phi rises through 0.5 from the cold wall. */
+/**
+ * Freeze-front distance (m) from the wall node (the centre of cell 0): where
+ * phi rises through 0.5, linearly interpolated between cell centres.
+ */
 function freezeFront(
   g: ReturnType<typeof createGrid>,
   mat: (typeof MATERIALS)[string],
@@ -73,7 +76,7 @@ function freezeFront(
     const phi = liquidFraction(mat!, specificEnthalpy(g, i))
     if (prev < 0.5 && phi >= 0.5) {
       const frac = (0.5 - prev) / (phi - prev)
-      return (i - 1 + 0.5 + frac) * dx
+      return (i - 1 + frac) * dx
     }
     prev = phi
   }
@@ -127,11 +130,11 @@ describe('two-phase Stefan benchmark (freeze front vs analytic solution)', () =>
     expect(erf(1)).toBeCloseTo(0.8427, 3)
   })
 
-  it('tracks the analytic freeze front within 8% after the early transient', () => {
+  it('tracks the analytic freeze front within 2% after the early transient', () => {
     for (const s of samples) {
       expect(s.sim).toBeGreaterThan(0)
       const relErr = Math.abs(s.sim - s.exact) / s.exact
-      expect(relErr).toBeLessThan(0.08)
+      expect(relErr).toBeLessThan(0.02)
     }
   })
 

@@ -16,10 +16,12 @@ import { diffuse, stableDt } from '../src/core/heat.ts'
  *
  * Discrete analogue: a 1D column of ice cells at the solidus (phi = 0), the
  * first cell pinned to T0 every step (Dirichlet wall), conduction stepped at
- * the stable explicit dt. The model melts across a 1 degC mushy band around
- * Tm = 0, so exact agreement is impossible by construction; the test pins
- * down HOW close the scheme lands (front position within 5% of analytic
- * after the early transient, and sqrt(t) growth scaling).
+ * the stable explicit dt. The pinned value lives at the CENTRE of cell 0, so
+ * that is x = 0 and cell i's centre sits at x = i dx. (Measuring from the
+ * outer edge of cell 0 instead adds a spurious half cell, +0.5 mm, which is
+ * +2.8% at t = 500 s and was previously mistaken for mushy-band error.)
+ * Observed on 1 mm cells: front error 0.1% at t = 500 s, 0.6% at 1000 s,
+ * 0.5% at 2000 s; the test asserts < 1.5% plus sqrt(t) growth scaling.
  */
 
 // Abramowitz & Stegun 7.1.26, |error| <= 1.5e-7 — plenty for a 5% bound.
@@ -49,7 +51,10 @@ function solveLambda(stefan: number): number {
   return (lo + hi) / 2
 }
 
-/** Melt-front position (m): where phi crosses 0.5, linearly interpolated. */
+/**
+ * Melt-front distance (m) from the wall node (the centre of cell 0): where
+ * phi crosses 0.5, linearly interpolated between cell centres.
+ */
 function frontPosition(
   g: ReturnType<typeof createGrid>,
   mat: (typeof MATERIALS)[string],
@@ -60,7 +65,7 @@ function frontPosition(
     const phi = liquidFraction(mat!, specificEnthalpy(g, i))
     if (prevPhi >= 0.5 && phi < 0.5) {
       const frac = (prevPhi - 0.5) / (prevPhi - phi)
-      return (i - 1 + 0.5 + frac) * dx
+      return (i - 1 + frac) * dx
     }
     prevPhi = phi
   }
@@ -109,11 +114,11 @@ describe('Stefan problem benchmark (1D melt front vs analytic solution)', () => 
     expect(erf(0.5)).toBeCloseTo(0.5205, 3)
   })
 
-  it('tracks the analytic front position within 5% after the early transient', () => {
+  it('tracks the analytic front position within 1.5% after the early transient', () => {
     for (const s of samples) {
       const relErr = Math.abs(s.sim - s.exact) / s.exact
       expect(s.sim).toBeGreaterThan(0)
-      expect(relErr).toBeLessThan(0.05)
+      expect(relErr).toBeLessThan(0.015)
     }
   })
 
