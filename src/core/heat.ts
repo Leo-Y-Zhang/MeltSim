@@ -36,8 +36,20 @@ const SAFETY = 0.9
  * faces break the discrete maximum principle (temperatures overshooting the
  * initial extremes). For a single material this reduces exactly to the
  * classic 0.1.x bound.
+ *
+ * `hAmbient` (W/(m^2 K), default 0) is the convective coefficient of the
+ * explicit ambient exchange the simulator applies on exposed faces. An
+ * exposed face passes h_amb * dx * dT per unit depth, so it behaves like a
+ * face of conductivity h_amb * dx; when that exceeds k_worst (cell Biot
+ * number h_amb dx / k > 1) it sets the bound instead, otherwise a cell with
+ * exposed faces over-relaxes past ambient and can diverge. Below that
+ * threshold the result is identical to the conduction-only bound.
  */
-export function stableDt(m: Material | readonly Material[], dx: number): number {
+export function stableDt(
+  m: Material | readonly Material[],
+  dx: number,
+  hAmbient = 0,
+): number {
   const list: readonly Material[] = Array.isArray(m) ? m : [m as Material]
   if (list.length === 0) throw new Error('stableDt needs at least one material')
   let dt = Infinity
@@ -49,6 +61,8 @@ export function stableDt(m: Material | readonly Material[], dx: number): number 
       const kFace = (2 * mat.k * other.k) / (mat.k + other.k)
       if (kFace > kWorst) kWorst = kFace
     }
+    const kAmbient = hAmbient * dx
+    if (kAmbient > kWorst) kWorst = kAmbient
     dt = Math.min(dt, (SAFETY * dx * dx * mat.rho * cMin) / (4 * kWorst))
   }
   return dt

@@ -153,3 +153,25 @@ describe('diffuse', () => {
     }
   })
 })
+
+describe('stableDt with a convective (ambient) boundary', () => {
+  // An exposed face exchanges h_amb * dx * dT per unit depth, i.e. it acts
+  // like a face of conductivity h_amb * dx. When that exceeds the material's
+  // own worst-case face conductivity, the classic dx^2/(4 alpha) bound is no
+  // longer enough for the explicit ambient term.
+  const dx = 0.01
+
+  it('is unchanged while h_amb * dx stays below the conductive face value', () => {
+    expect(stableDt(wax, dx, 12)).toBe(stableDt(wax, dx))
+    expect(stableDt(ice, dx, 30)).toBe(stableDt(ice, dx))
+    expect(stableDt([wax, ice], dx, 0)).toBe(stableDt([wax, ice], dx))
+  })
+
+  it('tightens to SAFETY rho c dx^2 / (4 h_amb dx) once the Biot number exceeds 1', () => {
+    const hAmb = 30 // h_amb * dx = 0.3 > wax k = 0.24
+    const cMin = Math.min(wax.cSolid, wax.cLiquid)
+    const expected = (0.9 * dx * dx * wax.rho * cMin) / (4 * hAmb * dx)
+    expect(stableDt(wax, dx, hAmb)).toBeCloseTo(expected, 9)
+    expect(stableDt(wax, dx, hAmb)).toBeLessThan(stableDt(wax, dx))
+  })
+})

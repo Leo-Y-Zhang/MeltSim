@@ -245,8 +245,9 @@ export class Sim {
     const { dx } = this.cfg
     this.applySource(simDt)
     // Stability: the shared explicit step must satisfy the bound for EVERY
-    // material on the grid, so take the minimum over all of them.
-    const dtStable = stableDt(this.grid.materials, dx)
+    // material on the grid, so take the minimum over all of them, including
+    // the explicit ambient exchange on exposed faces.
+    const dtStable = stableDt(this.grid.materials, dx, this.cfg.hAmbient)
     const nSub = Math.max(1, Math.ceil(simDt / dtStable))
     const dtSub = simDt / nSub
     for (let s = 0; s < nSub; s++) {

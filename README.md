@@ -154,7 +154,9 @@ simplification).
 less, empty faces not at all). Pairwise antisymmetric exchange makes energy
 conservation exact to floating point — asserted by tests. The solver
 sub-steps at the classic stability bound `Δt ≤ ρ c Δx² / 4k` with a 0.9 safety
-factor.
+factor, where `k` is the largest face conductance a cell can see: its own
+conductivity, a mixed-face harmonic mean, or `h_amb Δx` for a face exposed to
+ambient (which governs once the cell Biot number `h_amb Δx / k` exceeds 1).
 
 **Heater & ambient.** The heater injects a flux into the first material cell
 of each heated column (so it follows the surface as material slumps), hard-
