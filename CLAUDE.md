@@ -63,8 +63,8 @@ non-physical flow/viscosity automaton.
 
 - None specific to this repo — `npm ci` and `npm test` both ran clean, no
   network access needed beyond install, no browser/Playwright dependency.
-- `npm audit` reports 2 moderate-severity vulnerabilities in devDependencies
-  (not investigated; out of scope for behavior, doesn't affect test/lint).
+- `npm audit` reports no vulnerabilities (the earlier devDependency advisories
+  were cleared by dependency bumps).
 
 ## CI / conventions
 
