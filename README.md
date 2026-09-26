@@ -103,7 +103,7 @@ energy:
   JSON round-trip), plus a probe readout and PNG snapshot.
 - Headless frame exporter with dependency-free **PNG and animated-GIF
   (GIF89a/LZW) encoders**.
-- **221 unit tests** on everything that computes (conservation laws, boiling
+- **227 unit tests** on everything that computes (conservation laws, boiling
   and freezing, phase mapping, stability, automaton, multi-material rules,
   renderer field views, isotherms, charts, scenario round-trips), including
   **one- and two-phase Stefan-problem benchmarks**.
@@ -113,7 +113,7 @@ energy:
 ```bash
 npm install
 npm run dev        # interactive bench at http://localhost:5173
-npm test           # 221 vitest tests
+npm test           # 227 vitest tests
 npm run lint       # ESLint (typescript-eslint)
 npm run typecheck  # strict TypeScript
 npm run export:frames  # regenerate docs/media/*.png + *.gif headlessly (Node >= 23.6)
@@ -272,7 +272,7 @@ src/png/        dependency-free PNG encoder (DEFLATE is injected)
 src/gif/        dependency-free animated GIF89a encoder (own LZW + palette)
 src/ui/         thin untested DOM wiring for the bench
 scripts/        headless demo exporter (node scripts/export-frames.ts)
-tests/          221 vitest tests over everything except src/ui
+tests/          227 vitest tests over everything except src/ui
 ```
 
 Design rule: everything that computes is pure and tested; the browser layer
