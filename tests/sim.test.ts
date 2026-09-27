@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MATERIALS } from '../src/core/materials.ts'
+import { MATERIALS, withOverrides } from '../src/core/materials.ts'
 import { Sim, type SimConfig } from '../src/core/sim.ts'
 import { liquidFraction } from '../src/core/enthalpy.ts'
 import {
@@ -108,6 +108,34 @@ describe('Sim', () => {
     expect(Number.isFinite(s.maxT)).toBe(true)
     expect(s.maxT).toBeLessThanOrEqual(400)
     for (const e of sim.grid.energy) expect(Number.isFinite(e)).toBe(true)
+  })
+
+  it('keeps the discrete maximum principle with a strong ambient exchange', () => {
+    // Regression: the sub-step bound ignored the explicit ambient term. With
+    // the bench's softest tuning (butter, conductivity x0.25 -> k = 0.05) and
+    // its h_amb = 12 W/m^2K on 1 cm cells, h_amb*dx = 0.12 > k, so a cell
+    // with exposed faces over-relaxed past ambient (~32 degC in a 25 degC
+    // room). A cold solid warming toward ambient must never exceed it.
+    const butter = MATERIALS['butter']!
+    const sim = new Sim({
+      width: 96,
+      height: 64,
+      material: withOverrides(butter, { k: butter.k * 0.25 }),
+      dx: 0.01,
+      Tambient: 25,
+      initialT: -20,
+      hAmbient: 12,
+      heater: { x0: 0, x1: 0, side: 'top', power: 0, on: false },
+      flowRate: 0.25,
+      preset: 'mound',
+    })
+    // 800 s is just under the classic bound (~820 s), i.e. one sub-step.
+    for (let s = 0; s < 100; s++) {
+      sim.step(800)
+      const st = sim.stats()
+      expect(st.maxT).toBeLessThanOrEqual(25 + 1e-9)
+      expect(st.minT).toBeGreaterThanOrEqual(-20 - 1e-9)
+    }
   })
 
   it('supports the slab preset resting on the floor', () => {

@@ -29,7 +29,7 @@ export interface Scenario {
   preset: ScenePreset
   /** Which surface the heater faces, or 'off' to disable heating. */
   heaterSide: 'top' | 'bottom' | 'off'
-  /** Heater power, kW. */
+  /** Heater flux, kW/m^2 (scenarioToSimConfig converts it to W/m^2). */
   powerKw: number
   /** Ambient temperature, degrees C. */
   ambient: number
@@ -63,7 +63,7 @@ export interface Scenario {
 }
 
 /**
- * Inclusive clamp ranges. Power mirrors the UI slider (2..60 kW); the wider
+ * Inclusive clamp ranges. Power mirrors the UI slider (2..60 kW/m^2); the wider
  * temperature and rate bounds guard against absurd hand-edited values while
  * still admitting every scene the app ships. Kept as plain fields (no enums)
  * so the module stays erasable.

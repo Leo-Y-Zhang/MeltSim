@@ -15,9 +15,10 @@ ledger. Explicitly framed as an *educational* model, not a CFD solver.
 - `src/render/` — bench views/renderer; `src/charts/` — instrument charts;
   `src/gif/`, `src/png/` — dependency-free encoders (used by both the app and
   the README's own animations); `src/scenario/`, `src/ui/`.
-- `tests/` — flat, one file per concern (19 files, 221 tests), e.g.
+- `tests/` — flat, one file per concern (20 files, 227 tests), e.g.
   `stefan.test.ts` / `stefan_two_phase.test.ts` (analytic Stefan-problem
-  benchmarks), `enthalpy.test.ts`, `boiling.test.ts`, `multimaterial.test.ts`.
+  benchmarks), `energy_budget.test.ts` (energy change vs independently
+  integrated boundary fluxes), `enthalpy.test.ts`, `boiling.test.ts`, `multimaterial.test.ts`.
 - `scripts/export-frames.ts`, `docs/`.
 
 ## Install
@@ -38,7 +39,7 @@ npm run typecheck   # tsc --noEmit
 ## Test
 
 ```
-npm test            # vitest run — 19 files, 221 tests, ~2.4s
+npm test            # vitest run — 20 files, 227 tests, ~2.4s
 ```
 Fastest useful subset — one focused, fast file:
 ```
@@ -47,13 +48,14 @@ npx vitest run tests/stefan.test.ts
 
 ## Verification gate (source of truth)
 
-The full `npm test` run (221 tests) is the gate and is cheap enough (~2.4s)
+The full `npm test` run (227 tests) is the gate and is cheap enough (~2.4s)
 to run in full rather than sampling — there's little reason to use a subset
 except for a quick sanity check while iterating. Within it,
 `tests/stefan.test.ts` / `tests/stefan_two_phase.test.ts` are the
-physics-accuracy anchor: they assert the simulated melt front against the
+physics-accuracy anchor: they assert the simulated melt/freeze front,
+measured from the Dirichlet wall node (cell 0's centre), against the
 closed-form Stefan-problem solution `s(t) = 2*lambda*sqrt(alpha*t)` at
-< 5% residual gap — this is what backs the "real, literature-informed
+< 1.5% (melt) / < 2% (freeze) — this is what backs the "real, literature-informed
 material constants" claim, as opposed to the deliberately simplified,
 non-physical flow/viscosity automaton.
 
@@ -61,8 +63,8 @@ non-physical flow/viscosity automaton.
 
 - None specific to this repo — `npm ci` and `npm test` both ran clean, no
   network access needed beyond install, no browser/Playwright dependency.
-- `npm audit` reports 2 moderate-severity vulnerabilities in devDependencies
-  (not investigated; out of scope for behavior, doesn't affect test/lint).
+- `npm audit` reports no vulnerabilities (the earlier devDependency advisories
+  were cleared by dependency bumps).
 
 ## CI / conventions
 
