@@ -237,19 +237,22 @@ the closed-form solution of the one-phase Stefan problem (a wall held at
 60 degC melting a 1D column initially at the solidus). The test solves the
 transcendental equation for the front constant (lambda = 0.553 at Ste = 0.75)
 and checks the simulated melt front against s(t) = 2 lambda sqrt(alpha t):
-observed error is 2.8% at t = 500 s falling to 1.9% at t = 2000 s on 1 mm
-cells, asserted at < 5% (tests/stefan.test.ts). The residual gap is expected
-by construction: the model melts across a 1 degC mushy band, not a sharp
-front.
+observed error is 0.1% at t = 500 s, 0.6% at 1000 s and 0.5% at 2000 s on
+1 mm cells, asserted at < 1.5% (tests/stefan.test.ts). The front is measured
+from the wall node, the centre of the pinned cell 0; the larger errors quoted
+by earlier versions of this README (2.8% falling to 1.9%) came from measuring
+from that cell's outer edge, a half-cell (0.5 mm) offset, not from the mushy
+band.
 
 The freezing direction gets its own **two-phase Stefan benchmark**
 (tests/stefan_two_phase.test.ts): a superheated liquid against a sub-freezing
 wall, so *both* phases are thermally active. The front constant solves the
 two-Stefan-number transcendental equation
 `St_s/(e^{l^2}erf l) − St_l (c_s/c_l) nu/(e^{(l nu)^2}erfc(l nu)) = l sqrt(pi)`;
-the simulated freeze front lands within 8% of analytic (observed 6.1% at
-t = 400 s falling to 2.6% at 1500 s, lambda = 0.239), the same mushy-band
-transient as the melt benchmark.
+the simulated freeze front lands within 2% of analytic (observed 1.2% at
+t = 400 s, 0.5% at 800 s and 0.1% at 1500 s, lambda = 0.239), measured from
+the wall node as in the melt benchmark; the earlier 6.1% / 2.6% figures were
+the same half-cell measurement offset.
 
 ## Architecture
 
