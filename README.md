@@ -1,5 +1,7 @@
 # MeltSim - interactive 2D thermodynamics sandbox
 
+**Try it:** [leo-y-zhang.github.io/MeltSim](https://leo-y-zhang.github.io/MeltSim/)
+
 [![CI](https://github.com/Leo-Y-Zhang/MeltSim/actions/workflows/ci.yml/badge.svg)](https://github.com/Leo-Y-Zhang/MeltSim/actions/workflows/ci.yml)
 
 Melt, **freeze** and **boil** materials in the browser — heat ice, chocolate,
