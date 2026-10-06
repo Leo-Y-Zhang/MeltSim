@@ -70,5 +70,10 @@ non-physical flow/viscosity automaton.
 
 - `ci.yml`: single `test` job — `npm ci`, lint, test, typecheck, build, on
   Node 24. Separate `gitleaks` job scans full history for secrets.
+- `pages.yml`: on every push to `main`, tests, builds and deploys `dist` to
+  https://leo-y-zhang.github.io/MeltSim/ (Vite `base: './'`).
+- Record user-visible changes in `CHANGELOG.md` under a new version and bump
+  `package.json` to match; past entries record what each release shipped and
+  are not rewritten.
 - Zero runtime dependencies (`package.json` has no `dependencies` key).
 - No coverage floor is enforced.

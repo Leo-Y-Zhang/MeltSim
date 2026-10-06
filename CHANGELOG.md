@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.0.1 — 2026-10-06
+
+Corrections and verification since 1.0.0. No new physics; every exported scene
+is unchanged.
+
+### Fixed
+
+- **Stability bound**: `stableDt` now includes the ambient exchange on exposed
+  faces, bounding with `max(k_worst, h_amb Δx)`. Once the cell Biot number
+  `h_amb Δx / k` exceeded 1, the conduction-only bound let exposed cells
+  overshoot ambient (butter at k ×0.25 in a 25 °C room reached ~32 °C; a
+  lower-conductivity material diverged). Below Biot 1 the result is
+  bit-identical.
+- **Stefan benchmarks** now measure the front from the wall node (the centre of
+  the pinned cell 0) instead of that cell's outer edge. The half-cell offset
+  was most of the error 1.0.0 attributed to the mushy band: the melt front is
+  within 0.1–0.6% of analytic and the freeze front within 0.1–1.2%, so the
+  assertions tighten from 5% / 8% to 1.5% / 2%. The 1.0.0 entry below records
+  the figures as they were measured then.
+- **Isotherms**: a marching-squares corner lying exactly on the contour level
+  no longer makes the block report three crossings and drop its segment.
+
+### Verification
+
+- Energy-budget tests that derive the expected change from the physical inputs
+  alone rather than from the simulator's own accumulators: heater flux through
+  a melting slab (exact to 1e-12), Newton cooling of a lumped gallium block
+  (within 1%), and hot water on ice settling at the calorimetry temperature.
+- 227 vitest tests in 20 files (was 219).
+
+### Project
+
+- Published with GitHub Pages at
+  [leo-y-zhang.github.io/MeltSim](https://leo-y-zhang.github.io/MeltSim/),
+  built and tested on every push to `main`.
+- Security policy pointing at GitHub's private vulnerability reporting.
+- Dev-only dependency bumps (nanoid, @vitest/mocker, brace-expansion);
+  `npm audit` is clean. Runtime dependencies are still zero.
+
 ## 1.0.0 — 2026-07-08
 
 A bidirectional thermodynamics sandbox: the one-way melting demo now melts,
