@@ -286,8 +286,10 @@ rendered by the same `renderToRGBA` the app uses.
 
 ## Safety & privacy
 
-Runs entirely locally (Vite dev server). No network calls, no analytics, no
-external assets — the UI uses system fonts. Runtime dependencies: **zero**
+Runs entirely in your browser, whether from the
+[live build](https://leo-y-zhang.github.io/MeltSim/) (static files on GitHub
+Pages) or the local Vite dev server. No network calls after the page loads, no
+analytics, no external assets — the UI uses system fonts. Runtime dependencies: **zero**
 (TypeScript/Vite/Vitest are dev-only).
 
 ## Roadmap
