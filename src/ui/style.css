@@ -471,4 +471,17 @@ kbd {
     grid-template-columns: 1fr;
     grid-template-areas: 'head' 'view' 'rail' 'foot';
   }
+  /* grid items default to min-width: auto, so one wide child widened the page */
+  .bench > * { min-width: 0; }
+  .readouts { flex-wrap: wrap; width: 100%; }
+  .readout { flex: 1 1 88px; min-width: 0; }
+}
+
+@media (max-width: 520px) {
+  body { padding: 10px; }
+  .brand { flex-wrap: wrap; row-gap: 2px; }
+  .brand h1 { font-size: 24px; }
+  .brand-sub { font-size: 10px; letter-spacing: 0.1em; }
+  .readouts { gap: 6px; }
+  .readout { padding: 6px 8px 5px; }
 }

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.2 — 2026-10-23
+
+Layout only. No change to the physics or to any exported scene.
+
+### Fixed
+
+- **Phones**: the five masthead readouts could not wrap, and because grid items
+  default to `min-width: auto` they widened the whole page past the screen, so
+  the controls rail ran off the right edge. Below 900px the readouts now wrap
+  and every bench area can shrink; below 520px the masthead and padding tighten.
+
 ## 1.0.1 — 2026-10-06
 
 Corrections and verification since 1.0.0. No new physics; every exported scene
